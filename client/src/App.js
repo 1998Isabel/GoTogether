@@ -14,8 +14,8 @@ class App extends Component {
     return (
       <Provider store={store}>
         <Header />
-        <div className="container" style={{ marginTop: "70px" }}>
-          <Body />
+        <div className="container" style={{ marginTop: "30px" }}>
+          {/* <Body /> */}
           <div className="row">
             <div className="col-3">
               <Side />
