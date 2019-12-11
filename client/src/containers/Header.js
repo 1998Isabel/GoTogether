@@ -4,7 +4,7 @@ import { Navbar, Nav, NavDropdown, Form, FormControl, Button } from 'react-boots
 function Header() {
 	return (
 		<Navbar bg="dark" expand="lg" variant="dark" sticky="top">
-			<Navbar.Brand href="#home">React-Bootstrap</Navbar.Brand>
+			<Navbar.Brand href="#home">Go Together</Navbar.Brand>
 			<Navbar.Toggle aria-controls="basic-navbar-nav" />
 			<Navbar.Collapse id="basic-navbar-nav">
 				<Nav className="mr-auto">
