@@ -25,7 +25,7 @@ export const getFriends = name => dispatch => {
                 payload: res.data
             })});
     axios
-        .get(`/people/${name}`)
+        .get(`/friends/${name}`)
         .then(res => 
             dispatch({
                 type: GET_FRIENDS,

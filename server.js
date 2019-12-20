@@ -1,67 +1,105 @@
 const express = require("express");
+const app = express();
+app.use(express.json()); 
+
+//mysql
 var mysql = require('mysql');
-var db = require("./mydb.js");
+var conn = mysql.createConnection({
+  host: '127.0.0.1',
+  user: 'newuser',
+  password: '1234',
+  database: 'DBfinal'
+});
 
+// 建立連線後不論是否成功都會呼叫
+conn.connect(function (err) {
+  if (err) throw err;
+  console.log('connect success!');
+});
+
+//neo4j
 var neo4j = require('neo4j-driver');
-// console.log("NEO", neo4j)
-
 const uri = "bolt://localhost:7687";
 const user = "neo4j";
 const password = "1234";
 const driver = neo4j.driver(uri, neo4j.auth.basic(user, password));
 const session = driver.session();
 
-const personName = '賴沂謙';
-const resultPromise = session.run(
-  'MATCH (n:Student) RETURN n LIMIT 25',
-  // 'MATCH (a:Student) WHERE a.name = $name RETURN a',
-  // {name: personName}
-);
+// // 其他的資料庫操作，位置預留
+// conn.query('SELECT * FROM `weather_df` LIMIT 10', function (err, result, fields) {
+//   if (err) console.log(err);
+//   console.log(result);
+// });
+// conn.query('SELECT * FROM `tourism_df` LIMIT 1', function (err, result, fields) {
+//   if (err) console.log(err);
+//   console.log(result);
+// });
 
-resultPromise.then(result => {
-  session.close();
-  // console.log("RES", result)
-  const singleRecord = result.records[1];
-  const node = singleRecord.get(0);
-  // console.log("NOD", node)
-  console.log(node.properties.name);
+// const personName = '賴沂謙';
 
-  // on application exit:
-  driver.close();
+// session
+//   .run(
+//     // 'MATCH (n:Student) RETURN n LIMIT 25',
+//     'MATCH (a:Student) WHERE a.name = $name RETURN a',
+//     { name: personName }
+//   ).then(result => {
+//     session.close();
+//     // console.log("RES", result)
+//     const singleRecord = result.records[0];
+//     const node = singleRecord.get(0);
+//     // console.log("NOD", node)
+//     console.log(node.properties.name);
+
+//     // on application exit:
+//     // driver.close();
+//   });
+
+// People METHODS
+app.get("/people/:name", (req, res) => {
+  session
+    .run(
+      'MATCH (a:Student) WHERE a.name = $name RETURN a',
+      { name: req.params.name }
+    ).then(result => {
+      session.close();
+      const singleRecord = result.records[0];
+      const node = singleRecord.get(0);
+      console.log("NOD", node)
+      console.log(node.properties.name);
+      res.json(node);
+    });
 });
 
-var conn = mysql.createConnection({
-  host: '127.0.0.1',
-  user: 'newuser',
-  password: '1234',
-  database: 'sql_final'
+app.get("/friends/:name", (req, res) => {
+  session
+    .run(
+      'MATCH p=(a:Student)-[r1:HobbyFriends]->(b:Student)-[r2:HaveHobby]-(h:Hobby) WHERE a.name = $name RETURN DISTINCT b.name, collect(DISTINCT h.hobby) AS hobbies',
+      { name: req.params.name }
+    ).then(result => {
+      session.close();
+      console.log("RES",result)
+      const Records = result.records;
+      const nodes = Records.map(r => {
+        return({
+          name: r.get(0),
+          hobbies: r.get(1)
+        })
+      });
+      // console.log("NOD", nodes)
+      // console.log(node.properties.name);
+      res.json(nodes);
+    });
 });
-// 建立連線後不論是否成功都會呼叫
-conn.connect(function (err) {
-  if (err) throw err;
-  console.log('connect success!');
-});
-// 其他的資料庫操作，位置預留
-conn.query('SELECT * FROM `weather_df` LIMIT 10', function (err, result, fields) {
-  if (err) console.log(err);
-  console.log(result);
-});
-conn.query('SELECT * FROM `tourism_df` LIMIT 1', function (err, result, fields) {
-  if (err) console.log(err);
-  console.log(result);
-});
-console.log('select ended!');
-// 關閉連線時呼叫
-conn.end(function (err) {
-  if (err) throw err;
-  console.log('connect end');
-})
 
 
+// //close neo4j driver
+// driver.close();
 
-const app = express();
-
-// app.use(express.json());
+// // 關閉mysql連線時呼叫
+// conn.end(function (err) {
+//   if (err) throw err;
+//   console.log('connect end');
+// })
 
 // // Users METHODS
 // app.get("/user/:addr", (req, res) => {
@@ -113,8 +151,8 @@ const app = express();
 //   res.json(db.categories);
 // });
 
+
+
 const port = process.env.PORT || 7000;
 
 app.listen(port, () => console.log(`Server started on port ${port}`));
-
-// console.log(db);

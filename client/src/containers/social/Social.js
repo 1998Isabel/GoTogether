@@ -1,7 +1,8 @@
 import React, { Component } from "react";
+import axios from "axios";
 import { connect } from "react-redux";
-import { getCategories } from "../../actions/peopleActions";
-import { getPosts } from "../../actions/placeActions";
+import { getFriends } from "../../actions/peopleActions";
+import { getPlaces } from "../../actions/placeActions";
 import FriendCard from "./FriendCard";
 
 var friends = [
@@ -16,6 +17,15 @@ var friends = [
 ]
 
 class Social extends Component {
+  componentDidMount() {
+    // const name="賴沂謙";
+    // axios
+    //   .get(`/friends/${name}`)
+    //   .then(res => {
+    //     console.log(res.data)
+    //   });
+  }
+
   render() {
     const cardlist = friends.map(f => {
       return (<FriendCard friend={f} />)
@@ -34,4 +44,4 @@ const mapStateToProps = state => ({
   post: state.post
 });
 
-export default connect(mapStateToProps, { getCategories, getPosts })(Social);
+export default connect(mapStateToProps, { getFriends, getPlaces })(Social);
