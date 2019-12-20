@@ -18,7 +18,7 @@ class App extends Component {
               <Social />
             </Col>
             <Col>
-              <Map />
+              {/* <Map /> */}
             </Col>
           </Row>
         </Container>

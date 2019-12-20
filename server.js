@@ -1,6 +1,6 @@
 const express = require("express");
 const app = express();
-app.use(express.json()); 
+app.use(express.json());
 
 //mysql
 var mysql = require('mysql');
@@ -23,7 +23,6 @@ const uri = "bolt://localhost:7687";
 const user = "neo4j";
 const password = "1234";
 const driver = neo4j.driver(uri, neo4j.auth.basic(user, password));
-const session = driver.session();
 
 // // 其他的資料庫操作，位置預留
 // conn.query('SELECT * FROM `weather_df` LIMIT 10', function (err, result, fields) {
@@ -56,6 +55,7 @@ const session = driver.session();
 
 // People METHODS
 app.get("/people/:name", (req, res) => {
+  const session = driver.session();
   session
     .run(
       'MATCH (a:Student) WHERE a.name = $name RETURN a',
@@ -71,16 +71,17 @@ app.get("/people/:name", (req, res) => {
 });
 
 app.get("/friends/:name", (req, res) => {
+  const session = driver.session();
   session
     .run(
       'MATCH p=(a:Student)-[r1:HobbyFriends]->(b:Student)-[r2:HaveHobby]-(h:Hobby) WHERE a.name = $name RETURN DISTINCT b.name, collect(DISTINCT h.hobby) AS hobbies',
       { name: req.params.name }
     ).then(result => {
       session.close();
-      console.log("RES",result)
+      console.log("RES", result)
       const Records = result.records;
       const nodes = Records.map(r => {
-        return({
+        return ({
           name: r.get(0),
           hobbies: r.get(1)
         })
@@ -91,6 +92,26 @@ app.get("/friends/:name", (req, res) => {
     });
 });
 
+// Places METHODS
+app.get("/places/:condition", (req, res) => {
+  const location = req.params.condition;
+  console.log(location)
+  conn.query(`SELECT * FROM tourism_df WHERE city = "${location}"`, (err, result, fields) => {
+      if (err) console.log(err);
+      console.log(result[0]);
+      res.json(result);
+    });
+})
+
+// Places METHODS
+app.get("/weather/:location", (req, res) => {
+  const { location } = req.params;
+  conn.query(`SELECT * FROM weather_df WHERE city = "${location}"`, (err, result, fields) => {
+      if (err) console.log(err);
+      console.log(result[0]);
+      res.json(result);
+    });
+})
 
 // //close neo4j driver
 // driver.close();

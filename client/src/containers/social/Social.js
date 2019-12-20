@@ -18,17 +18,12 @@ var friends = [
 
 class Social extends Component {
   componentDidMount() {
-    // const name="賴沂謙";
-    // axios
-    //   .get(`/friends/${name}`)
-    //   .then(res => {
-    //     console.log(res.data)
-    //   });
+    this.props.getFriends("賴沂謙");
   }
 
   render() {
-    const cardlist = friends.map(f => {
-      return (<FriendCard friend={f} />)
+    const cardlist = this.props.people.friends.map((f,idx) => {
+      return (<FriendCard key={idx} friend={f} />)
     })
     return (
       <div>
@@ -40,8 +35,7 @@ class Social extends Component {
 }
 
 const mapStateToProps = state => ({
-  category: state.category,
-  post: state.post
+  people: state.people,
 });
 
-export default connect(mapStateToProps, { getFriends, getPlaces })(Social);
+export default connect(mapStateToProps, { getFriends })(Social);

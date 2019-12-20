@@ -14,7 +14,7 @@ export const setLocation = location => dispatch => {
 
 export const getPlaces = condition => dispatch => {
     axios
-        .post('/places', condition)
+        .get('/places', condition)
         .then(res => 
             dispatch({
                 type: GET_PLACES,
