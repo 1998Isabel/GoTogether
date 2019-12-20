@@ -71,7 +71,7 @@ class FriendCard extends Component {
 					<Card.Title>{this.props.friend.location}</Card.Title>
 					<Card.Text>
 						<p>
-							Hobbys:
+							Hobbies:
 							{this.getHobbies()}
 						</p>
 						<p>
