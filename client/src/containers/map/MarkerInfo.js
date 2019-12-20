@@ -11,6 +11,7 @@ class Marker extends Component {
 	}
 
 	componentDidMount() {
+		const { idx, place, lat, lng, onChangeGeo } = this.props;
 		var request = {
 			query: this.state.place.name,
 			fields: ['name', 'formatted_address', 'geometry', 'icon', 'permanently_closed', 'photos', 'place_id', 'types', 'rating'],
@@ -18,11 +19,14 @@ class Marker extends Component {
 		var service = new this.props.mapApi.places.PlacesService(this.props.mapInstance);
 		service.findPlaceFromQuery(request, (results, status) => {
 			if (status === this.props.mapApi.places.PlacesServiceStatus.OK) {
-				for (var i = 0; i < results.length; i++) {
-					console.log(results[i]);
-					const place = { ...this.state.place, ...results[i] }
-					this.setState({ place: place })
+				console.log(results[0]);
+				const newlat = results[0].geometry.location.lat();
+				const newlng = results[0].geometry.location.lng();
+				if (lat !== newlat || lng !== newlng) {
+					onChangeGeo(idx, newlat, newlng);
 				}
+				const place = { ...this.state.place, ...results[0] }
+				this.setState({ place: place })
 			}
 		});
 	}

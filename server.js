@@ -42,7 +42,11 @@ conn.connect(function (err) {
   console.log('connect success!');
 });
 // 其他的資料庫操作，位置預留
-conn.query('SELECT * FROM `weather_df` LIMIT 1', function (err, result, fields) {
+conn.query('SELECT * FROM `weather_df` LIMIT 10', function (err, result, fields) {
+  if (err) console.log(err);
+  console.log(result);
+});
+conn.query('SELECT * FROM `tourism_df` LIMIT 1', function (err, result, fields) {
   if (err) console.log(err);
   console.log(result);
 });

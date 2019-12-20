@@ -1,8 +1,8 @@
 import { combineReducers } from 'redux';
-import postReducer from './postReducer';
-import categoryReducer from './categoryReducer';
+import placeReducer from './placeReducer';
+import peopleReducer from './peopleReducer';
 
 export default combineReducers({
-    post: postReducer,
-    category: categoryReducer
+    place: placeReducer,
+    people: peopleReducer
 });

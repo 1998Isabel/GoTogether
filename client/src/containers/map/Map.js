@@ -9,14 +9,14 @@ var markers = [];
 const myplaces = [
 	{
 		id: "1",
-		name: "台灣大學",
-		lat: 25.0173402,
-		lng: 121.530997,
+		name: "2019宜蘭綠色博覽會",
+		lat: 25.0173405,
+		lng: 121.5375631,
 		show: true,
 	},
 	{
 		id: "2",
-		name: "寶藏巖台北國際藝術村",
+		name: "冬山路二段172號",
 		lat: 25.010732,
 		lng: 121.5234988,
 		show: true,
@@ -82,24 +82,11 @@ class Map extends Component {
     });
 	}
 
-	queryPlaces = () => {
-		myplaces.forEach(place => {
-			var request = {
-				query: place.name,
-				fields: ['name', 'formatted_address', 'geometry', 'icon', 'permanently_closed', 'photos', 'place_id', 'types'],
-			};
-			if (this.state.mapApiLoaded) {
-				var service = new this.state.mapApi.places.PlacesService(this.state.mapInstance);
-				service.findPlaceFromQuery(request, (results, status) => {
-					if (status === this.state.mapApi.places.PlacesServiceStatus.OK) {
-						for (var i = 0; i < results.length; i++) {
-							console.log(results[i]);
-							place = { ...place, ...results[i] }
-						}
-					}
-				});
-			}
-		})
+	handleGeo = (idx, lat, lng) => {
+		let newplaces = this.state.places;
+		newplaces[idx].lat = lat;
+		newplaces[idx].lng = lng;
+		this.setState({places: newplaces})
 	}
 
 	render() {
@@ -119,15 +106,17 @@ class Map extends Component {
 					{this.showMarker(places)}
 					{!isEmpty(places) &&
 					 this.state.mapApiLoaded &&
-						places.map(place => (
+						places.map((place,idx) => (
 							<MarkerInfo
-								key={place.id}
+								key={idx}
+								idx={idx}
 								lat={place.lat}
 								lng={place.lng}
 								show={place.show}
 								place={place}
 								mapApi={mapApi}
 								mapInstance={mapInstance}
+								onChangeGeo={this.handleGeo}
 							/>
 						))}
 				</GoogleMap>

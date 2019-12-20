@@ -1,7 +1,7 @@
 import React, { Component } from "react";
 import { connect } from "react-redux";
-import { getCategories } from "../../actions/categoryActions";
-import { getPosts } from "../../actions/postActions";
+import { getCategories } from "../../actions/peopleActions";
+import { getPosts } from "../../actions/placeActions";
 import FriendCard from "./FriendCard";
 
 var friends = [
