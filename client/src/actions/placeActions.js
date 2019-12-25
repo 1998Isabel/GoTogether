@@ -13,9 +13,14 @@ export const setLocation = location => dispatch => {
 };
 
 export const getPlaces = condition => dispatch => {
+    console.log("GETCon", condition)
     axios
-        .get('/places', condition)
-        .then(res => 
+        .get(`/places`, {
+            params: {
+                location: condition.location,
+                hobbies: condition.hobbies,
+        }})
+        .then(res =>
             dispatch({
                 type: GET_PLACES,
                 payload: res.data

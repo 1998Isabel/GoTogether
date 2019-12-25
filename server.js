@@ -78,7 +78,6 @@ app.get("/friends/:name", (req, res) => {
       { name: req.params.name }
     ).then(result => {
       session.close();
-      console.log("RES", result)
       const Records = result.records;
       const nodes = Records.map(r => {
         return ({
@@ -93,10 +92,21 @@ app.get("/friends/:name", (req, res) => {
 });
 
 // Places METHODS
-app.get("/places/:condition", (req, res) => {
-  const location = req.params.condition;
-  console.log(location)
-  conn.query(`SELECT * FROM tourism_df WHERE city = "${location}"`, (err, result, fields) => {
+app.get("/places", (req, res) => {
+  console.log("PARAM", req.query)
+  const { location, hobbies } = req.query;
+  let query = `SELECT * FROM allspots WHERE city = "${location}"`;
+  hobbies.forEach((h,idx) => {
+    if (idx === 0)
+      query = query + " AND"
+    else
+      query = query + " OR"
+    h = "music"
+    query = query + ` label_search = "${h}"`
+  });
+  query = query + " LIMIT 10";
+  console.log("QUERY", query)
+  conn.query(query, (err, result, fields) => {
       if (err) console.log(err);
       console.log(result[0]);
       res.json(result);
@@ -108,7 +118,6 @@ app.get("/weather/:location", (req, res) => {
   const { location } = req.params;
   conn.query(`SELECT * FROM weather_df WHERE city = "${location}"`, (err, result, fields) => {
       if (err) console.log(err);
-      console.log(result[0]);
       res.json(result);
     });
 })

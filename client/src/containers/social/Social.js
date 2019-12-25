@@ -22,13 +22,15 @@ class Social extends Component {
   }
 
   render() {
-    const cardlist = this.props.people.friends.map((f,idx) => {
+    const cardlist = this.props.people.friends.map((f, idx) => {
       return (<FriendCard key={idx} friend={f} />)
     })
     return (
       <div>
         <h5>Check out your friends!</h5>
-        {cardlist}
+        <div style={{ height: "80vh", overflowY: "auto" }}>
+          {cardlist}
+        </div>
       </div>
     );
   }
