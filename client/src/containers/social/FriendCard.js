@@ -1,7 +1,7 @@
 import React, { Component } from "react";
 import axios from "axios";
 import { connect } from "react-redux";
-import { getPlaces } from "../../actions/placeActions";
+import { getPlaces, setLocation } from "../../actions/placeActions";
 import { Card, Button, Form, Row, Col } from 'react-bootstrap';
 import urls from "../../weatherurl";
 
@@ -34,8 +34,7 @@ class FriendCard extends Component {
 					weather: res.data[0].天氣預報綜合描述,
 					weatherurl: url,
 				})
-			}
-			);
+			});
 	}
 
 	checkHobby = (idx) => {
@@ -63,15 +62,16 @@ class FriendCard extends Component {
 			hobbies: this.state.hobbies.filter(h => h.check).map(h => h.hobby)
 		}
 		this.props.getPlaces(con)
+		this.props.setLocation(this.state.location)
 		console.log(this.state)
 	}
 
 	render() {
-		const cityOptions = cities.map((c,idx) => (
+		const cityOptions = cities.map((c, idx) => (
 			<option key={idx} value={c}>{c}</option>
 		))
 		return (
-			<Card style={{ margin: "10px" }}>
+			<Card style={{ marginBottom: "10px" }}>
 				<Card.Header as="h5">
 					{this.props.friend.name}
 					<Button variant="primary" size="sm" style={{ float: "right" }} onClick={this.handleGoClick}>Go</Button>
@@ -108,4 +108,4 @@ const mapStateToProps = state => ({
 });
 
 
-export default connect(mapStateToProps, { getPlaces })(FriendCard);
+export default connect(mapStateToProps, { getPlaces, setLocation })(FriendCard);

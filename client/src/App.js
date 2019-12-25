@@ -5,7 +5,7 @@ import { Container, Row, Col } from 'react-bootstrap';
 import store from './store';
 import Header from './containers/Header';
 import Social from './containers/social/Social';
-import Map from './containers/map/Map';
+import Tourism from './containers/tourism/Tourism';
 
 class App extends Component {
   render() {
@@ -18,7 +18,7 @@ class App extends Component {
               <Social />
             </Col>
             <Col>
-              <Map />
+              <Tourism />
             </Col>
           </Row>
         </Container>
