@@ -58,14 +58,20 @@ app.get("/people/:name", (req, res) => {
   const session = driver.session();
   session
     .run(
-      'MATCH (a:Student) WHERE a.name = $name RETURN a',
+      `
+      MATCH (ui: usersInfo {name: $name})-[:hobby]->(h1: AllUsersHobbies)
+      RETURN ui.name AS name, ui.city AS city, ui.district AS district, collect(DISTINCT h1.name) AS hobbies
+      `,
       { name: req.params.name }
     ).then(result => {
       session.close();
       const singleRecord = result.records[0];
-      const node = singleRecord.get(0);
-      console.log("NOD", node)
-      console.log(node.properties.name);
+      const node = {
+        name: singleRecord.get(0),
+        hobbies: singleRecord.get(3),
+        location: [singleRecord.get(1), singleRecord.get(2)],
+        latlng: [0, 0],
+      }
       res.json(node);
     });
 });
@@ -74,7 +80,12 @@ app.get("/friends/:name", (req, res) => {
   const session = driver.session();
   session
     .run(
-      'MATCH p=(a:Student)-[r1:HobbyFriends]->(b:Student)-[r2:HaveHobby]-(h:Hobby) WHERE a.name = $name RETURN DISTINCT b.name, collect(DISTINCT h.hobby) AS hobbies',
+      `
+      MATCH (ui: usersInfo {name: $name})-[:hobby]->(h1: AllUsersHobbies)<-[:hobby]-(us: usersInfo)
+      WITH DISTINCT us
+      MATCH (us)-[:hobby]->(h2: AllUsersHobbies)
+      RETURN us.name AS name, us.city AS city, us.district AS district, collect(DISTINCT h2.name) AS hobbies
+    `,
       { name: req.params.name }
     ).then(result => {
       session.close();
@@ -82,11 +93,10 @@ app.get("/friends/:name", (req, res) => {
       const nodes = Records.map(r => {
         return ({
           name: r.get(0),
-          hobbies: r.get(1)
+          hobbies: r.get(3),
+          location: [r.get(1), r.get(2)],
         })
       });
-      // console.log("NOD", nodes)
-      // console.log(node.properties.name);
       res.json(nodes);
     });
 });
@@ -94,32 +104,40 @@ app.get("/friends/:name", (req, res) => {
 // Places METHODS
 app.get("/places", (req, res) => {
   console.log("PARAM", req.query)
-  const { location, hobbies } = req.query;
-  let query = `SELECT * FROM allspots WHERE city = "${location}"`;
-  hobbies.forEach((h,idx) => {
-    if (idx === 0)
-      query = query + " AND"
-    else
+  const { location, latlng, hobbies } = req.query;
+  let query = //`SELECT * FROM allspots WHERE city = "${location}"`;
+    `
+    SELECT *, 
+    ROUND(ST_distance_sphere(POINT(${latlng[1]}, ${latlng[0]}), 
+    POINT(longitude, latitude))/1000, 2) as distance, 
+    description
+    FROM allspots
+    WHERE 
+  `
+  hobbies.forEach((h, idx) => {
+    if (idx !== 0)
       query = query + " OR"
+
+    // remember to delete
     h = "music"
     query = query + ` label_search = "${h}"`
   });
-  query = query + " LIMIT 10";
+  query = query + " HAVING distance < 10 ORDER BY distance ASC LIMIT 10;"
   console.log("QUERY", query)
   conn.query(query, (err, result, fields) => {
-      if (err) console.log(err);
-      console.log(result[0]);
-      res.json(result);
-    });
+    if (err) console.log(err);
+    console.log(result[0]);
+    res.json(result);
+  });
 })
 
 // Places METHODS
 app.get("/weather/:location", (req, res) => {
   const { location } = req.params;
   conn.query(`SELECT * FROM weather_df WHERE city = "${location}"`, (err, result, fields) => {
-      if (err) console.log(err);
-      res.json(result);
-    });
+    if (err) console.log(err);
+    res.json(result);
+  });
 })
 
 // //close neo4j driver

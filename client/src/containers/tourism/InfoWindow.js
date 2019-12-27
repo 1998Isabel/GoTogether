@@ -25,6 +25,7 @@ class InfoWindow extends Component {
 					<Card.Text>
 						{this.props.place.address}
 						{this.props.place.photos&&<img src={this.props.place.photos[0].getUrl()} width="80%" />}
+						<br />
 						{this.props.place.description}
     				</Card.Text>
 					{/* <Card.Link href="#">Card Link</Card.Link>

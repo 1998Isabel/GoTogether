@@ -4,8 +4,10 @@ import { getFriends } from "../../actions/peopleActions";
 import FriendCard from "./FriendCard";
 
 class Social extends Component {
-  componentDidMount() {
-    this.props.getFriends("賴沂謙");
+  componentDidUpdate(prevProps, prevState) {
+    if (this.props.people.user !== prevProps.people.user){
+      this.props.getFriends(this.props.people.user.name);
+    }
   }
 
   render() {

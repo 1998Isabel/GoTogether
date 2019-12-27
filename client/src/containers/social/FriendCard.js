@@ -1,7 +1,7 @@
 import React, { Component } from "react";
 import axios from "axios";
 import { connect } from "react-redux";
-import { getPlaces, setLocation } from "../../actions/placeActions";
+import { getPlaces } from "../../actions/placeActions";
 import { Card, Button, Form, Row, Col } from 'react-bootstrap';
 import urls from "../../weatherurl";
 
@@ -15,7 +15,7 @@ class FriendCard extends Component {
 		this.state = {
 			weather: null,
 			weatherurl: null,
-			location: "臺北市",
+			location: this.props.friend.location[0],
 			hobbies: this.props.friend.hobbies.map(h => (
 				{
 					check: true,
@@ -26,8 +26,7 @@ class FriendCard extends Component {
 	}
 
 	componentDidMount() {
-		const location = "臺北市";
-		axios.get(`/weather/${location}`)
+		axios.get(`/weather/${this.state.location}`)
 			.then(res => {
 				const url = urls.find(w => w.weather === res.data[0].天氣現象).url
 				this.setState({
@@ -58,11 +57,11 @@ class FriendCard extends Component {
 
 	handleGoClick = () => {
 		const con = {
-			location: this.state.location,
+			location: this.props.people.user.location[0],
+			latlng: this.props.people.user.latlng,
 			hobbies: this.state.hobbies.filter(h => h.check).map(h => h.hobby)
 		}
 		this.props.getPlaces(con)
-		this.props.setLocation(this.state.location)
 		console.log(this.state)
 	}
 
@@ -77,26 +76,19 @@ class FriendCard extends Component {
 					<Button variant="primary" size="sm" style={{ float: "right" }} onClick={this.handleGoClick}>Go</Button>
 				</Card.Header>
 				<Card.Body>
-					<Card.Title>{this.props.friend.location}</Card.Title>
 					<Card.Text>
 						<p>
 							Hobbies:
 							{this.getHobbies()}
 						</p>
 						<Row>
-							<Col md="5">
-								Location: 臺北市
-								<img src={this.state.weatherurl} alt="weather" width="30px" />
-							</Col>
-							<Col md="2">Choose</Col>
 							<Col>
-								<Form.Control as="select" size="sm" defaultValue={"臺北市"} onChange={this.chooseLocation}>
-									{cityOptions}
-								</Form.Control>
+								Location: {this.props.friend.location[0]}, {this.props.friend.location[1]}
+								<span style={{ marginLeft: "10px" }}><img src={this.state.weatherurl} alt="weather" width="30px" /></span>
 							</Col>
 						</Row>
-						<footer className="blockquote-footer">{this.state.weather}</footer>
 					</Card.Text>
+					<footer className="blockquote-footer">{this.state.weather}</footer>
 				</Card.Body>
 			</Card>
 		);
@@ -108,4 +100,4 @@ const mapStateToProps = state => ({
 });
 
 
-export default connect(mapStateToProps, { getPlaces, setLocation })(FriendCard);
+export default connect(mapStateToProps, { getPlaces })(FriendCard);

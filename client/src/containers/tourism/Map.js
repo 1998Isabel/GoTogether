@@ -2,11 +2,14 @@ import React, { Component } from 'react';
 import isEmpty from 'lodash.isempty';
 import { connect } from "react-redux";
 import { loadMap, showPlace } from "../../actions/placeActions";
+import { setUserLocation } from "../../actions/peopleActions";
 import GoogleMap from './GoogleMap';
 import MarkerInfo from './MarkerInfo';
 
+
 const CENTER = [25.021918, 121.535285];
 var markers = [];
+var usermarker = null;
 
 class Map extends Component {
 	constructor(props) {
@@ -18,22 +21,59 @@ class Map extends Component {
 		};
 	}
 
+	componentDidUpdate = (prevProps, prevState) => {
+		if (prevProps.people.user !== this.props.people.user) {
+			console.log("IN MAP UPDATE", this.props.people.user);
+			if (this.props.people.user.latlng && this.props.people.user.latlng[0] !== 0) {
+				let latlng = new this.props.place.gmap.maps.LatLng(this.props.people.user.latlng[0], this.props.people.user.latlng[1]);
+				this.handleUserMarker(latlng);
+			}
+		}
+	}
+
 	apiHasLoaded = (map, maps, places) => {
-		this.props.loadMap({map: map, maps: maps});
+		this.props.loadMap({ map: map, maps: maps });
 		this.setState({
 			mapApiLoaded: true,
 			mapInstance: map,
 			mapApi: maps,
 		});
+		map.addListener('click', (e) => {
+			// if (usermarker)
+			// 	usermarker.setMap(null);
+			// this.handleUserMarker(e.latLng)
+			console.log(e.latLng)
+			this.props.setUserLocation({
+				...this.props.people.user,
+				latlng: [e.latLng.lat(), e.latLng.lng()]
+			})
+		});
+	}
+
+	handleUserMarker = (latlng) => {
+		if (usermarker)
+			usermarker.setMap(null);
+		usermarker = new this.props.place.gmap.maps.Marker({
+			position: latlng,
+			map: this.props.place.gmap.map,
+			draggable: true,
+			label: "Me",
+		});
+		usermarker.addListener('dragend', (e) => {
+			console.log("DRAG", usermarker.getPosition().lat())
+			this.props.setUserLocation({
+				...this.props.people.user,
+				latlng: [usermarker.getPosition().lat(), usermarker.getPosition().lng()]
+			})
+		})
+		this.props.place.gmap.map.panTo(latlng);
 	}
 
 	pickcenter = (place) => {
 		if (place) {
-			console.log("NEW PLACE")
-			return [place.latitude, place.longitude];
+			return place.latlng;
 		}
 		else {
-			console.log("OLD PLACE")
 			return CENTER;
 		}
 	}
@@ -46,21 +86,20 @@ class Map extends Component {
 			mark.setMap(null);
 		})
 		markers = [];
-		places.forEach(async (place) => {
-			markers.push(new mapApi.Marker({
+		places.forEach((place,i) => {
+			let marker = new mapApi.Marker({
 				map: mapInstance,
 				position: {
 					lat: place.latitude,
 					lng: place.longitude,
 				},
-			}));
-		});
-		markers.forEach((marker, i) => {
+			})
 			marker.addListener('click', () => {
 				this.state.mapInstance.setCenter(new mapApi.LatLng(this.props.place.places[i].latitude, this.props.place.places[i].longitude));
 				this.state.mapInstance.setZoom(15);
-				this.props.showPlace(i);
+				this.props.showPlace({i});
 			});
+			markers.push(marker);
 		});
 	}
 
@@ -71,7 +110,7 @@ class Map extends Component {
 			<div style={{ width: "100%", height: "55%" }}>
 				<GoogleMap
 					defaultZoom={12}
-					center={this.pickcenter(places[0])}
+					center={this.pickcenter(this.props.people.user)}
 					bootstrapURLKeys={{
 						key: process.env.REACT_APP_MAP_KEY,
 						libraries: ['places', 'geometry'],
@@ -100,8 +139,10 @@ class Map extends Component {
 		)
 	}
 }
+
 const mapStateToProps = state => ({
+	people: state.people,
 	place: state.place,
 });
 
-export default connect(mapStateToProps, { loadMap, showPlace })(Map);
+export default connect(mapStateToProps, { loadMap, showPlace, setUserLocation })(Map);

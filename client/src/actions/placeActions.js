@@ -14,19 +14,13 @@ export const loadMap = map => dispatch => {
     })
 }
 
-export const setLocation = location => dispatch => {
-    dispatch({
-        type: SET_LOCATION,
-        payload: location
-    });
-};
-
 export const getPlaces = condition => dispatch => {
     dispatch(setplaceLoading());
     axios
         .get(`/places`, {
             params: {
                 location: condition.location,
+                latlng: condition.latlng,
                 hobbies: condition.hobbies,
         }})
         .then(res =>

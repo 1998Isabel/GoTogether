@@ -9,7 +9,6 @@ import {
 
 const initialState = {
     gmap: null,
-    location: "新北市",
     places: [],
     loading: false
 }
@@ -36,7 +35,12 @@ export default function (state = initialState, action) {
             };
         case SHOW_PLACE:
             let newplaces = state.places;
-            newplaces[action.payload].show = !newplaces[action.payload].show
+            newplaces.forEach((p, idx) => {
+                if (idx === action.payload)
+                    newplaces[idx].show = true;
+                else
+                    newplaces[idx].show = false;
+            })
             return {
                 ...state,
                 places: newplaces,
@@ -47,6 +51,7 @@ export default function (state = initialState, action) {
             let cplaces = state.places;
             cplaces[id].latitude = lat;
             cplaces[id].longitude = lng;
+            console.log("CHANGE PLACE", lat, lng)
             return {
                 ...state,
                 places: cplaces,

@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import axios from "axios";
 import { connect } from "react-redux";
-import { showPlace, setLocation } from "../../actions/placeActions";
+import { showPlace } from "../../actions/placeActions";
 import { ListGroup, Table } from 'react-bootstrap';
 import Map from "./Map";
 import urls from "../../weatherurl";
@@ -16,28 +16,9 @@ class Tourism extends Component {
 		}
 	}
 
-	componentDidMount() {
-		// this.props.setLocation("臺北市")
-		console.log(this.props.place.location)
-		axios.get(`/weather/${this.props.place.location}`)
-			.then(res => {
-				let weathers = []
-				console.log("RES", res)
-				res.data.forEach((d, idx) => {
-					if (idx % 2 === 1) {
-						weathers.push(urls.find(w => w.weather === d.天氣現象).url)
-					}
-				})
-				console.log("WEA", weathers)
-				this.setState({
-					weather: weathers
-				})
-			});
-	}
-
 	componentDidUpdate(prevProps, prevState) {
-		if (prevProps.place.location !== this.props.place.location) {
-			axios.get(`/weather/${this.props.place.location}`)
+		if (this.props.people.user !== prevProps.people.user) {
+			axios.get(`/weather/${this.props.people.user.location[0]}`)
 				.then(res => {
 					let weathers = []
 					console.log("RES", res)
@@ -64,21 +45,21 @@ class Tourism extends Component {
 
 	render() {
 		const placeItem = this.props.place.places.map((p, idx) => (
-			<ListGroup.Item key={idx} variant={color[idx % 6]} onClick={()=>this.handleClick(idx)}>{p.title}</ListGroup.Item>
+			<ListGroup.Item key={idx} variant={color[idx % 6]} onClick={() => this.handleClick(idx)}>{p.title}</ListGroup.Item>
 		))
 
 		const labels = this.state.weather.map((l, idx) => (
-			<th style={{textAlign: "center"}}>第{idx + 1}天</th>
+			<th style={{ textAlign: "center" }}>第{idx + 1}天</th>
 		))
 		const imgs = this.state.weather.map((w, idx) => (
 			<td>
-				<img src={w} alt={idx} width="80%"  />
+				<img src={w} alt={idx} width="80%" />
 			</td>
 		))
 
 		return (
 			<div style={{ width: "100%", height: "90%" }}>
-				<h5>Tourism for you in <span className="text-muted"> {this.props.place.location}</span>!</h5>
+				<h5>Tourism for you in <span className="text-muted"> {this.props.people.user?this.props.people.user.location[0]+", "+this.props.people.user.location[1]:null}</span>!</h5>
 				<div style={{ width: "100%", height: "15%" }}>
 					<Table responsive size="sm">
 						<thead>
@@ -102,7 +83,8 @@ class Tourism extends Component {
 	}
 }
 const mapStateToProps = state => ({
-	place: state.place,
+	people: state.people,
+	place: state.place
 });
 
-export default connect(mapStateToProps, { showPlace, setLocation })(Tourism);
+export default connect(mapStateToProps, { showPlace })(Tourism);
