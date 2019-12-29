@@ -15,6 +15,7 @@ export default function(state = initialState, action) {
             return {
                 ...state,
                 user: action.payload,
+                friends: [],
                 loading: false
             };
         case GET_FRIENDS:

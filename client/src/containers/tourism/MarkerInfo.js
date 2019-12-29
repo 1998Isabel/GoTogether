@@ -12,24 +12,41 @@ class Marker extends Component {
 		}
 	}
 
-	componentDidMount() {
-		const { idx, place, onChangeGeo } = this.props;
-		var request = {
-			query: this.state.place.title,
-			fields: ['name', 'formatted_address', 'geometry', 'icon', 'permanently_closed', 'photos', 'place_id', 'types', 'rating'],
-		};
-		var service = new this.props.mapApi.places.PlacesService(this.props.mapInstance);
-		service.findPlaceFromQuery(request, (results, status) => {
-			if (status === this.props.mapApi.places.PlacesServiceStatus.OK) {
-				if (this.state.place.latitude === 0)
-					this.props.changePlace({id: idx, lat: results[0].geometry.location.lat(), lng: results[0].geometry.location.lng()});
-				const place = { ...this.state.place, ...results[0] }
-				this.setState({ place: place })
-			}
-		});
+	componentDidUpdate(prevProps, prevState) {
+		if (prevProps !== this.props) {
+			const { idx, place, onChangeGeo } = this.props;
+			var request = {
+				query: place.title,
+				fields: ['name', 'formatted_address', 'geometry', 'photos', 'place_id', 'types', 'rating'],
+			};
+			this.setState({ place: place })
+			var service = new this.props.mapApi.places.PlacesService(this.props.mapInstance);
+			service.findPlaceFromQuery(request, (results, status) => {
+				if (status === this.props.mapApi.places.PlacesServiceStatus.OK) {
+					if (place.latitude === 0)
+						this.props.changePlace({ id: idx, lat: results[0].geometry.location.lat(), lng: results[0].geometry.location.lng() });
+					const updateplace = { ...this.state.place, ...results[0] }
+					this.setState({ place: updateplace })
+				}
+			});
+		}
 	}
 
 	render() {
+		// const { idx, place, onChangeGeo } = this.props;
+		// var request = {
+		// 	query: place.title,
+		// 	fields: ['name', 'formatted_address', 'geometry', 'photos', 'place_id', 'types', 'rating'],
+		// };
+		// var updateplace = place;
+		// var service = new this.props.mapApi.places.PlacesService(this.props.mapInstance);
+		// service.findPlaceFromQuery(request, (results, status) => {
+		// 	if (status === this.props.mapApi.places.PlacesServiceStatus.OK) {
+		// 		if (place.latitude === 0)
+		// 			this.props.changePlace({ id: idx, lat: results[0].geometry.location.lat(), lng: results[0].geometry.location.lng() });
+		// 		updateplace = { ...place, ...results[0] }
+		// 	}
+		// });
 		return (
 			<>
 				{this.props.show && <InfoWindow place={this.state.place} />}

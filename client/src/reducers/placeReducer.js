@@ -2,6 +2,7 @@ import {
     LOAD_MAP,
     SET_LOCATION,
     GET_PLACES,
+    RESET_PLACES,
     SHOW_PLACE,
     CHANGE_PLACE,
     PLACES_LOADING
@@ -33,11 +34,17 @@ export default function (state = initialState, action) {
                 places: action.payload,
                 loading: false
             };
+        case RESET_PLACES:
+            return {
+                ...state,
+                places: action.payload,
+                loading: false
+            }
         case SHOW_PLACE:
             let newplaces = state.places;
             newplaces.forEach((p, idx) => {
                 if (idx === action.payload)
-                    newplaces[idx].show = true;
+                    newplaces[idx].show = !newplaces[idx].show;
                 else
                     newplaces[idx].show = false;
             })
@@ -51,7 +58,6 @@ export default function (state = initialState, action) {
             let cplaces = state.places;
             cplaces[id].latitude = lat;
             cplaces[id].longitude = lng;
-            console.log("CHANGE PLACE", lat, lng)
             return {
                 ...state,
                 places: cplaces,

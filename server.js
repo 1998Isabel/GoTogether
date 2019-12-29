@@ -97,6 +97,7 @@ app.get("/friends/:name", (req, res) => {
           location: [r.get(1), r.get(2)],
         })
       });
+      console.log("FRIENDS NUM", nodes.length)
       res.json(nodes);
     });
 });
@@ -118,11 +119,9 @@ app.get("/places", (req, res) => {
     if (idx !== 0)
       query = query + " OR"
 
-    // remember to delete
-    h = "music"
     query = query + ` label_search = "${h}"`
   });
-  query = query + " HAVING distance < 10 ORDER BY distance ASC LIMIT 10;"
+  query = query + " HAVING distance < 10 ORDER BY distance ASC LIMIT 15;"
   console.log("QUERY", query)
   conn.query(query, (err, result, fields) => {
     if (err) console.log(err);
@@ -139,67 +138,6 @@ app.get("/weather/:location", (req, res) => {
     res.json(result);
   });
 })
-
-// //close neo4j driver
-// driver.close();
-
-// // 關閉mysql連線時呼叫
-// conn.end(function (err) {
-//   if (err) throw err;
-//   console.log('connect end');
-// })
-
-// // Users METHODS
-// app.get("/user/:addr", (req, res) => {
-//   const user = db.users.filter(user => user.addr === req.params.addr);
-//   res.json(user);
-// });
-
-// // Posts METHODS
-// app.get("/posts", (req, res) => {
-//   res.json(db.posts);
-// });
-
-// app.post("/posts", (req, res) => {
-//   const newPost = {
-//     id: req.body.id,
-//     category: req.body.category,
-//     title: req.body.title,
-//     content: req.body.content
-//   };
-
-//   db.posts.unshift(newPost);
-//   res.json(newPost);
-// });
-
-// app.delete("/posts/:id", (req, res) => {
-//   db.posts = db.posts.filter(post => post.id !== req.params.id);
-//   res.json(db.posts);
-// });
-
-// // Categories METHODS
-// app.get("/categories", (req, res) => {
-//   res.json(db.categories);
-// });
-
-// app.post("/categories", (req, res) => {
-//   const newCategory = {
-//     id: req.body.id,
-//     name: req.body.name
-//   };
-
-//   db.categories.push(newCategory);
-//   res.json(newCategory);
-// });
-
-// app.delete("/categories/:id", (req, res) => {
-//   db.categories = db.categories.filter(
-//     category => category.id !== req.params.id
-//   );
-//   res.json(db.categories);
-// });
-
-
 
 const port = process.env.PORT || 7000;
 

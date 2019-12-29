@@ -4,10 +4,7 @@ import { connect } from "react-redux";
 import { getPlaces } from "../../actions/placeActions";
 import { Card, Button, Form, Row, Col } from 'react-bootstrap';
 import urls from "../../weatherurl";
-
-const color = ["success", "secondary", "danger", "warning", "info", "light"]
-const cities = ["基隆市", "臺北市", "新北市", "桃園縣", "新竹市", "新竹縣", "苗栗縣", "台中市", "彰化縣", "南投縣", "雲林縣",
-	"嘉義市", "嘉義縣", "臺南市", "高雄市", "屏東縣", "臺東縣", "花蓮縣", "宜蘭縣", "澎湖縣", "金門縣", "連江縣"]
+import { color, EN_hobbies, CH_hobbies } from '../../utils';
 
 class FriendCard extends Component {
 	constructor(props) {
@@ -46,7 +43,7 @@ class FriendCard extends Component {
 		return this.state.hobbies.map((h, idx) => {
 			const showcolor = h.check ? color[idx % 5] : color[5];
 			return (
-				<span key={idx} onClick={() => this.checkHobby(idx)} className={`badge badge-${showcolor}`} style={{ marginLeft: "10px", cursor: "pointer" }}>{h.hobby}</span>
+				<span key={idx} onClick={() => this.checkHobby(idx)} className={`badge badge-${showcolor}`} style={{ marginLeft: "10px", cursor: "pointer" }}>{CH_hobbies[EN_hobbies.findIndex(e => e===(h.hobby))]}</span>
 			)
 		})
 	}
@@ -62,13 +59,10 @@ class FriendCard extends Component {
 			hobbies: this.state.hobbies.filter(h => h.check).map(h => h.hobby)
 		}
 		this.props.getPlaces(con)
-		console.log(this.state)
 	}
 
 	render() {
-		const cityOptions = cities.map((c, idx) => (
-			<option key={idx} value={c}>{c}</option>
-		))
+
 		return (
 			<Card style={{ marginBottom: "10px" }}>
 				<Card.Header as="h5">

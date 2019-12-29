@@ -3,6 +3,7 @@ import { connect } from "react-redux";
 import { setUser, setUserLocation } from "../actions/peopleActions";
 import { Navbar, Nav, NavDropdown, Modal, Button, Form, Col, Row } from 'react-bootstrap';
 import taiwan from './../Taiwan.json';
+import { color, EN_hobbies, CH_hobbies } from '../utils';
 
 class Header extends Component {
 	constructor(props) {
@@ -17,9 +18,7 @@ class Header extends Component {
 
 	componentDidUpdate(prevProps, prevState) {
 		if (!prevProps.people.user) {
-			console.log("UPDATE", this.props.people.user)
 			if (this.props.people.user) {
-				console.log(prevState)
 				this.setState({
 					city: this.props.people.user.location[0],
 					area: this.props.people.user.location[1]
@@ -40,18 +39,13 @@ class Header extends Component {
 
 	changeName = (e) => {
 		this.setState({ name: e.target.value })
-		console.log(this.state.name)
 	}
 
 	submitName = () => {
-		console.log(this.state.name)
 		this.props.setUser({ name: this.state.name, mapApi: this.props.place.gmap })
 	}
 
 	changeCity = (e) => {
-		// let areaIdx = taiwan.find(c => c.CityName === this.state.city).AreaList.findIndex(a => a.AreaName === this.state.area)
-		// console.log("AREA",areaIdx)
-		// console.log(taiwan[e.target.value].AreaList[areaIdx].AreaName)
 		this.setState({ city: taiwan[e.target.value].CityName, area: taiwan[e.target.value].AreaList[0].AreaName })
 	}
 
@@ -72,7 +66,7 @@ class Header extends Component {
 							Name
     							</Form.Label>
 						<Col sm="8">
-							<Form.Control placeholder="Fill in your name." onChange={this.changeName} />
+							<Form.Control placeholder="Type your full name" onChange={this.changeName} />
 						</Col>
 						<Col>
 							<Button variant="outline-primary" onClick={this.submitName}>OK</Button>
@@ -82,7 +76,6 @@ class Header extends Component {
 			)
 		}
 		else {
-			console.log(this.state)
 			const cityoptions = taiwan.map((c, idx) => (
 				<option key={idx} value={idx}>
 					{c.CityName}
@@ -93,6 +86,11 @@ class Header extends Component {
 					{a.AreaName}
 				</option>
 			))
+			const hobbies = this.props.people.user.hobbies.map((h, idx) => {
+				return (
+					<span key={idx} className={`badge badge-${color[idx % 5]}`} style={{ marginRight: "10px" }}>{CH_hobbies[EN_hobbies.findIndex(e => e === (h))]}</span>
+				)
+			})
 			return (
 				<Form>
 					<Form.Group as={Row} controlId="formPlaintextName">
@@ -132,9 +130,17 @@ class Header extends Component {
 							<Form.Control readOnly value={this.props.people.user.latlng[0]} />
 						</Col>
 						<Col>
-							<Form.Control readOnly value={this.props.people.user.latlng[1]}/>
+							<Form.Control readOnly value={this.props.people.user.latlng[1]} />
 						</Col>
 					</Form.Group>
+					<Row>
+						<Col sm="2">
+							Hobbies
+    					</Col>
+						<Col sm="8">
+							{hobbies}
+						</Col>
+					</Row>
 				</Form>
 			)
 		}
@@ -147,15 +153,6 @@ class Header extends Component {
 				<Navbar.Toggle aria-controls="basic-navbar-nav" />
 				<Navbar.Collapse id="basic-navbar-nav">
 					<Nav className="mr-auto">
-						{/* <Nav.Link href="#home">Home</Nav.Link>
-						<Nav.Link href="#link">Link</Nav.Link>
-						<NavDropdown title="Dropdown" id="basic-nav-dropdown">
-							<NavDropdown.Item href="#action/3.1">Action</NavDropdown.Item>
-							<NavDropdown.Item href="#action/3.2">Another action</NavDropdown.Item>
-							<NavDropdown.Item href="#action/3.3">Something</NavDropdown.Item>
-							<NavDropdown.Divider />
-							<NavDropdown.Item href="#action/3.4">Separated link</NavDropdown.Item>
-						</NavDropdown> */}
 					</Nav>
 					<span className="text-light" style={{ marginRight: "10px" }}>
 						Hello {this.props.people.user ? (this.props.people.user.name) : null} !

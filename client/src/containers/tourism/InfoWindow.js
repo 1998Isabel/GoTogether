@@ -6,12 +6,16 @@ class InfoWindow extends Component {
 		super(props);
 	}
 
+	clickDebug = () => {
+		console.log(this.props.place)
+	}
+
 	render() {
 		return (
-			<Card style={{ width: '18rem' }}>
+			<Card style={{ width: '35vw', maxHeight: '50vh', overflowY: 'auto' }} onClick={this.clickDebug}>
 				<Card.Body>
 					<Card.Title>{this.props.place.title}</Card.Title>
-					<Card.Subtitle className="mb-2 text-muted">
+					{this.props.place.rating===0?null:(<Card.Subtitle className="mb-2 text-muted">
 						<span style={{ color: 'grey' }}>
 							{this.props.place.rating}{' '}
 						</span>
@@ -21,15 +25,13 @@ class InfoWindow extends Component {
 						<span style={{ color: 'lightgrey' }}>
 							{String.fromCharCode(9733).repeat(5 - Math.floor(this.props.place.rating))}
 						</span>
-					</Card.Subtitle>
+					</Card.Subtitle>)}
 					<Card.Text>
 						{this.props.place.address}
-						{this.props.place.photos&&<img src={this.props.place.photos[0].getUrl()} width="80%" />}
+						{this.props.place.photos&&<img src={this.props.place.photos[0].getUrl()} width="100%" style={{marginBottom: "10px"}} />}
 						<br />
 						{this.props.place.description}
     				</Card.Text>
-					{/* <Card.Link href="#">Card Link</Card.Link>
-					<Card.Link href="#">Another Link</Card.Link> */}
 				</Card.Body>
 			</Card>
 		)

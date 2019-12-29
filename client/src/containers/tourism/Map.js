@@ -23,7 +23,6 @@ class Map extends Component {
 
 	componentDidUpdate = (prevProps, prevState) => {
 		if (prevProps.people.user !== this.props.people.user) {
-			console.log("IN MAP UPDATE", this.props.people.user);
 			if (this.props.people.user.latlng && this.props.people.user.latlng[0] !== 0) {
 				let latlng = new this.props.place.gmap.maps.LatLng(this.props.people.user.latlng[0], this.props.people.user.latlng[1]);
 				this.handleUserMarker(latlng);
@@ -42,7 +41,6 @@ class Map extends Component {
 			// if (usermarker)
 			// 	usermarker.setMap(null);
 			// this.handleUserMarker(e.latLng)
-			console.log(e.latLng)
 			this.props.setUserLocation({
 				...this.props.people.user,
 				latlng: [e.latLng.lat(), e.latLng.lng()]
@@ -60,7 +58,6 @@ class Map extends Component {
 			label: "Me",
 		});
 		usermarker.addListener('dragend', (e) => {
-			console.log("DRAG", usermarker.getPosition().lat())
 			this.props.setUserLocation({
 				...this.props.people.user,
 				latlng: [usermarker.getPosition().lat(), usermarker.getPosition().lng()]
@@ -97,7 +94,7 @@ class Map extends Component {
 			marker.addListener('click', () => {
 				this.state.mapInstance.setCenter(new mapApi.LatLng(this.props.place.places[i].latitude, this.props.place.places[i].longitude));
 				this.state.mapInstance.setZoom(15);
-				this.props.showPlace({i});
+				this.props.showPlace(i);
 			});
 			markers.push(marker);
 		});
@@ -107,10 +104,11 @@ class Map extends Component {
 		const { mapApiLoaded, mapInstance, mapApi } = this.state;
 		const { places } = this.props.place;
 		return (
-			<div style={{ width: "100%", height: "55%" }}>
+			<div style={{ width: "100%", height: "38vh" }}>
 				<GoogleMap
 					defaultZoom={12}
 					center={this.pickcenter(this.props.people.user)}
+					options={{scrollwheel: false}}
 					bootstrapURLKeys={{
 						key: process.env.REACT_APP_MAP_KEY,
 						libraries: ['places', 'geometry'],
