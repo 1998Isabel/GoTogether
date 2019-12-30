@@ -41,47 +41,73 @@ export const setUser = user => dispatch => {
         });
 }
 
-export const setUserLocation = user => dispatch => {
+export const setUserFromLocation = user => dispatch => {
     dispatch(setFriendsLoading());
-    if (user.mapApi) {
-        console.log("HAVE LOCATION", user)
-        let geocoder = new user.mapApi.maps.Geocoder();
-        const addr = user.location[0] + user.location[1];
-        console.log("ADDR", addr)
-        geocoder.geocode({ 'address': addr }, (results, status) => {
-            if (status == 'OK') {
-                let loc = results[0].geometry.location
-                console.log("!!!", loc)
-                dispatch({
-                    type: SET_USER,
-                    payload: {
-                        name: user.name,
-                        hobbies: user.hobbies,
-                        location: user.location,
-                        latlng: [loc.lat(), loc.lng()]
-                    }
-                })
-            }
-            else {
-                console.log(status)
-                dispatch({
-                    type: SET_USER,
-                    payload: {
-                        name: user.name,
-                        hobbies: user.hobbies,
-                        location: user.location,
-                        latlng: user.latlng
-                    }
-                })
-            }
-        })
-    }
-    else {
-        dispatch({
-            type: SET_USER,
-            payload: user
-        })
-    }
+    let geocoder = new user.mapApi.maps.Geocoder();
+    const addr = user.location[0] + user.location[1];
+    geocoder.geocode({ 'address': addr }, (results, status) => {
+        if (status == 'OK') {
+            let loc = results[0].geometry.location
+            dispatch({
+                type: SET_USER,
+                payload: {
+                    name: user.name,
+                    hobbies: user.hobbies,
+                    location: user.location,
+                    latlng: [loc.lat(), loc.lng()]
+                }
+            })
+        }
+        else {
+            console.log(status)
+            dispatch({
+                type: SET_USER,
+                payload: {
+                    name: user.name,
+                    hobbies: user.hobbies,
+                    location: user.location,
+                    latlng: user.latlng
+                }
+            })
+        }
+    })
+}
+
+export const setUserFromLatlng = user => dispatch => {
+    dispatch(setFriendsLoading());
+    let geocoder = new user.mapApi.Geocoder();
+    const coord = new user.mapApi.LatLng(user.latlng[0], user.latlng[1])
+    geocoder.geocode({ 'latLng': coord }, (results, status) => {
+        if (status == 'OK') {
+            const resaddrs = results[0].address_components
+            let loc = [resaddrs[resaddrs.length-3], resaddrs[resaddrs.length-4]]
+            loc = loc.map(l => (
+                l.long_name.replace("台","臺")
+            ))
+            console.log("GET ADDR", loc)
+            dispatch({
+                type: SET_USER,
+                payload: {
+                    name: user.name,
+                    hobbies: user.hobbies,
+                    location: loc,
+                    latlng: user.latlng
+                }
+            })
+        }
+        else {
+            console.log(status)
+            dispatch({
+                type: SET_USER,
+                payload: {
+                    name: user.name,
+                    hobbies: user.hobbies,
+                    location: user.location,
+                    latlng: user.latlng
+                }
+            })
+        }
+    })
 }
 
 export const getFriends = name => dispatch => {

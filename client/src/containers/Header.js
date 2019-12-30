@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import { connect } from "react-redux";
-import { setUser, setUserLocation } from "../actions/peopleActions";
-import { Navbar, Nav, NavDropdown, Modal, Button, Form, Col, Row } from 'react-bootstrap';
+import { setUser, setUserFromLocation } from "../actions/peopleActions";
+import { Navbar, Nav, Modal, Button, Form, Col, Row } from 'react-bootstrap';
 import taiwan from './../Taiwan.json';
 import { color, EN_hobbies, CH_hobbies } from '../utils';
 
@@ -25,7 +25,7 @@ class Header extends Component {
 				})
 			}
 		}
-		else if (prevProps.people.user.name !== this.props.people.user.name) {
+		else if (prevProps.people.user.name !== this.props.people.user.name || prevProps.people.user.location !== this.props.people.user.location) {
 			this.setState({
 				city: this.props.people.user.location[0],
 				area: this.props.people.user.location[1]
@@ -54,14 +54,14 @@ class Header extends Component {
 	}
 
 	submitLocation = (e) => {
-		this.props.setUserLocation({ ...this.props.people.user, location: [this.state.city, this.state.area], mapApi: this.props.place.gmap })
+		this.props.setUserFromLocation({ ...this.props.people.user, location: [this.state.city, this.state.area], mapApi: this.props.place.gmap })
 	}
 
 	showInform = () => {
 		if (!this.state.city) {
 			return (
 				<Form>
-					<Form.Group as={Row} controlId="formPlaintextName">
+					<Form.Group as={Row} controlId="TypeName">
 						<Form.Label column sm="2">
 							Name
     							</Form.Label>
@@ -93,7 +93,7 @@ class Header extends Component {
 			})
 			return (
 				<Form>
-					<Form.Group as={Row} controlId="formPlaintextName">
+					<Form.Group as={Row} controlId="ChangeName">
 						<Form.Label column sm="2">
 							Name
     							</Form.Label>
@@ -104,7 +104,7 @@ class Header extends Component {
 							<Button variant="outline-primary" onClick={this.submitName}>OK</Button>
 						</Col>
 					</Form.Group>
-					<Form.Group as={Row} controlId="formPlaintextLocation">
+					<Form.Group as={Row} controlId="TypeLocation">
 						<Form.Label column xs="2">
 							City/Area
     					</Form.Label>
@@ -122,7 +122,7 @@ class Header extends Component {
 							<Button variant="outline-primary" onClick={this.submitLocation}>OK</Button>
 						</Col>
 					</Form.Group>
-					<Form.Group as={Row} controlId="formPlaintextLocation">
+					<Form.Group as={Row} controlId="ShowLocation">
 						<Form.Label column xs="2">
 							Location
     					</Form.Label>
@@ -185,4 +185,4 @@ const mapStateToProps = state => ({
 	place: state.place
 });
 
-export default connect(mapStateToProps, { setUser, setUserLocation })(Header);
+export default connect(mapStateToProps, { setUser, setUserFromLocation })(Header);

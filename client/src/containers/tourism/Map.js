@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import isEmpty from 'lodash.isempty';
 import { connect } from "react-redux";
 import { loadMap, showPlace } from "../../actions/placeActions";
-import { setUserLocation } from "../../actions/peopleActions";
+import { setUserFromLatlng } from "../../actions/peopleActions";
 import GoogleMap from './GoogleMap';
 import MarkerInfo from './MarkerInfo';
 
@@ -38,12 +38,10 @@ class Map extends Component {
 			mapApi: maps,
 		});
 		map.addListener('click', (e) => {
-			// if (usermarker)
-			// 	usermarker.setMap(null);
-			// this.handleUserMarker(e.latLng)
-			this.props.setUserLocation({
+			this.props.setUserFromLatlng({
 				...this.props.people.user,
-				latlng: [e.latLng.lat(), e.latLng.lng()]
+				latlng: [e.latLng.lat(), e.latLng.lng()],
+				mapApi: maps
 			})
 		});
 	}
@@ -58,9 +56,10 @@ class Map extends Component {
 			label: "Me",
 		});
 		usermarker.addListener('dragend', (e) => {
-			this.props.setUserLocation({
+			this.props.setUserFromLatlng({
 				...this.props.people.user,
-				latlng: [usermarker.getPosition().lat(), usermarker.getPosition().lng()]
+				latlng: [usermarker.getPosition().lat(), usermarker.getPosition().lng()],
+				mapApi: this.props.place.gmap.maps
 			})
 		})
 		this.props.place.gmap.map.panTo(latlng);
@@ -143,4 +142,4 @@ const mapStateToProps = state => ({
 	place: state.place,
 });
 
-export default connect(mapStateToProps, { loadMap, showPlace, setUserLocation })(Map);
+export default connect(mapStateToProps, { loadMap, showPlace, setUserFromLatlng })(Map);

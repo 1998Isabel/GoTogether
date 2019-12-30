@@ -48,7 +48,7 @@ class Tourism extends Component {
 
 		if (placeItem.length === 0)
 			placeItem.push((
-				<div>No recommend tourism yet!</div>
+				<div key="0">No recommended tourism yet!</div>
 			))
 
 		const labels = this.state.weather.map((l, idx) => (
