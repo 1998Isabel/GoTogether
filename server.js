@@ -1,6 +1,15 @@
 const express = require("express");
 const app = express();
 app.use(express.json());
+var nodemailer = require('nodemailer');
+
+var mailTransport = nodemailer.createTransport('SMTP', {
+  service: 'Gmail',
+  auth: {
+    user: credentials.gmail.user,
+    pass: credentials.gmail.password,
+  },
+});
 
 //mysql
 var mysql = require('mysql');
@@ -23,35 +32,6 @@ const uri = "bolt://localhost:7687";
 const user = "neo4j";
 const password = "1234";
 const driver = neo4j.driver(uri, neo4j.auth.basic(user, password));
-
-// // 其他的資料庫操作，位置預留
-// conn.query('SELECT * FROM `weather_df` LIMIT 10', function (err, result, fields) {
-//   if (err) console.log(err);
-//   console.log(result);
-// });
-// conn.query('SELECT * FROM `tourism_df` LIMIT 1', function (err, result, fields) {
-//   if (err) console.log(err);
-//   console.log(result);
-// });
-
-// const personName = '賴沂謙';
-
-// session
-//   .run(
-//     // 'MATCH (n:Student) RETURN n LIMIT 25',
-//     'MATCH (a:Student) WHERE a.name = $name RETURN a',
-//     { name: personName }
-//   ).then(result => {
-//     session.close();
-//     // console.log("RES", result)
-//     const singleRecord = result.records[0];
-//     const node = singleRecord.get(0);
-//     // console.log("NOD", node)
-//     console.log(node.properties.name);
-
-//     // on application exit:
-//     // driver.close();
-//   });
 
 // People METHODS
 app.get("/people/:name", (req, res) => {
