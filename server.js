@@ -139,7 +139,6 @@ app.get("/places", (req, res) => {
   console.log("QUERY", query)
   conn.query(query, (err, result, fields) => {
     if (err) console.log(err);
-    console.log(result[0]);
     res.json(result);
   });
 })
