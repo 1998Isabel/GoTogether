@@ -43,8 +43,10 @@ export default function (state = initialState, action) {
         case SHOW_PLACE:
             let newplaces = state.places;
             newplaces.forEach((p, idx) => {
-                if (idx === action.payload)
+                if (idx === action.payload) {
                     newplaces[idx].show = !newplaces[idx].show;
+                    newplaces[idx].check = !newplaces[idx].check;
+                }
                 else
                     newplaces[idx].show = false;
             })

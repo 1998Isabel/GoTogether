@@ -1,15 +1,49 @@
 const express = require("express");
 const app = express();
 app.use(express.json());
-var nodemailer = require('nodemailer');
+const nodemailer = require("nodemailer");
+const { google } = require("googleapis");
+const OAuth2 = google.auth.OAuth2;
+const credentials = require('./credentials.js');
 
-var mailTransport = nodemailer.createTransport('SMTP', {
-  service: 'Gmail',
-  auth: {
-    user: credentials.gmail.user,
-    pass: credentials.gmail.password,
-  },
+const oauth2Client = new OAuth2(
+  credentials.gmail.clientID, // ClientID
+  credentials.gmail.clientSecret, // Client Secret
+  "https://developers.google.com/oauthplayground" // Redirect URL
+);
+
+oauth2Client.setCredentials({
+  refresh_token: credentials.gmail.refreshToken
 });
+const accessToken = oauth2Client.getAccessToken()
+
+var mailTransport = nodemailer.createTransport({
+  service: "gmail",
+  auth: {
+    type: "OAuth2",
+    user: credentials.gmail.user,
+    clientId: credentials.gmail.clientID,
+    clientSecret: credentials.gmail.clientSecret,
+    refreshToken: credentials.gmail.refreshToken,
+    accessToken: accessToken
+  }
+
+});
+// nodemailer.createTransport({
+//   host: "smtp.gmail.com",
+//   auth: {
+//     type: "login", // default
+//     user: credentials.gmail.user,
+//     pass: credentials.gmail.password
+//   }
+// });
+// nodemailer.createTransport({
+//   service: 'Gmail',
+//   auth: {
+//     user: credentials.gmail.user,
+//     pass: credentials.gmail.password,
+//   },
+// });
 
 //mysql
 var mysql = require('mysql');
@@ -64,7 +98,7 @@ app.get("/friends/:name", (req, res) => {
       MATCH (ui: usersInfo {name: $name})-[:hobby]->(h1: AllUsersHobbies)<-[:hobby]-(us: usersInfo)
       WITH DISTINCT us
       MATCH (us)-[:hobby]->(h2: AllUsersHobbies)
-      RETURN us.name AS name, us.city AS city, us.district AS district, collect(DISTINCT h2.name) AS hobbies
+      RETURN us.name AS name, us.city AS city, us.district AS district, us.id AS id, collect(DISTINCT h2.name) AS hobbies
     `,
       { name: req.params.name }
     ).then(result => {
@@ -73,7 +107,8 @@ app.get("/friends/:name", (req, res) => {
       const nodes = Records.map(r => {
         return ({
           name: r.get(0),
-          hobbies: r.get(3),
+          studentId: r.get(3),
+          hobbies: r.get(4),
           location: [r.get(1), r.get(2)],
         })
       });
@@ -84,7 +119,6 @@ app.get("/friends/:name", (req, res) => {
 
 // Places METHODS
 app.get("/places", (req, res) => {
-  console.log("PARAM", req.query)
   const { location, latlng, hobbies } = req.query;
   let query = //`SELECT * FROM allspots WHERE city = "${location}"`;
     `
@@ -117,6 +151,24 @@ app.get("/weather/:location", (req, res) => {
     if (err) console.log(err);
     res.json(result);
   });
+})
+
+app.post("/email", (req, res) => {
+  const { addr, subject, body } = req.body.params;
+  mailTransport.sendMail(
+    {
+      from: "GoTogether <"+credentials.gmail.user+">",
+      to: addr,
+      subject: subject,
+      generateTextFromHTML: true,
+      html: body,
+    },
+    function (err) {
+      if (err) {
+        console.log('Unable to send email: ' + err);
+      }
+    },
+  );
 })
 
 const port = process.env.PORT || 7000;

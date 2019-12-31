@@ -33,7 +33,8 @@ export const getPlaces = condition => dispatch => {
                             ...p, 
                             latitude: l[0],
                             longitude: l[1],
-                            show: false
+                            show: false,
+                            check: false,
                         }
                     )
                 })

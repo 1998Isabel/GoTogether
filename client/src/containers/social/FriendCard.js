@@ -1,5 +1,6 @@
 import React, { Component } from "react";
 import axios from "axios";
+import jsxToString from 'jsx-to-string';
 import { connect } from "react-redux";
 import { getPlaces } from "../../actions/placeActions";
 import { Card, Button, Form, Row, Col } from 'react-bootstrap';
@@ -43,13 +44,44 @@ class FriendCard extends Component {
 		return this.state.hobbies.map((h, idx) => {
 			const showcolor = h.check ? color[idx % 5] : color[5];
 			return (
-				<span key={idx} onClick={() => this.checkHobby(idx)} className={`badge badge-${showcolor}`} style={{ marginLeft: "10px", cursor: "pointer" }}>{CH_hobbies[EN_hobbies.findIndex(e => e===(h.hobby))]}</span>
+				<span key={idx} onClick={() => this.checkHobby(idx)} className={`badge badge-${showcolor}`} style={{ marginLeft: "10px", cursor: "pointer" }}>{CH_hobbies[EN_hobbies.findIndex(e => e === (h.hobby))]}</span>
 			)
 		})
 	}
 
 	chooseLocation = (e) => {
 		this.setState({ location: e.target.value })
+	}
+
+	handleInviteClick = () => {
+		let checkedplaces = this.props.place.places.filter(p => p.check).map(p => (
+			<li>
+				<h3>{p.title}</h3>
+				<ul>
+					<li>{p.address}</li>
+				</ul>
+			</li>
+		))
+		let emailhtml = (
+			<div>
+				<h3>Invited trip from your friend!</h3>
+				<h4>These are the recommended tourism~</h4>
+				<ul>
+					{checkedplaces}
+				</ul>
+				<footer>--From GoTogether!</footer>
+			</div>
+		)
+		let xmlText = jsxToString(emailhtml)
+		axios.post('/email', {
+			params: {
+				addr: this.props.friend.studentId + "@ntu.edu.tw",
+				subject: this.props.people.user.name + " has invited you to a trip!",
+				body: xmlText,
+			}
+		}).then(res => {
+			console.log(res)
+		})
 	}
 
 	handleGoClick = () => {
@@ -68,6 +100,7 @@ class FriendCard extends Component {
 				<Card.Header as="h5">
 					{this.props.friend.name}
 					<Button variant="primary" size="sm" style={{ float: "right" }} onClick={this.handleGoClick}>Go</Button>
+					<Button variant="outline-secondary" size="sm" style={{ float: "right", marginRight: "10px" }} onClick={this.handleInviteClick}>Invite</Button>
 				</Card.Header>
 				<Card.Body>
 					<Card.Text>
@@ -91,6 +124,7 @@ class FriendCard extends Component {
 
 const mapStateToProps = state => ({
 	people: state.people,
+	place: state.place,
 });
 
 

@@ -43,7 +43,7 @@ class Tourism extends Component {
 
 	render() {
 		let placeItem = this.props.place.places.map((p, idx) => (
-			<ListGroup.Item key={idx} variant={color[idx % 5]} onClick={() => this.handleClick(idx)}>{p.title}</ListGroup.Item>
+			<ListGroup.Item key={idx} variant={(p.check)?color[idx % 5]:color[5]} onClick={() => this.handleClick(idx)}>{p.title}</ListGroup.Item>
 		))
 
 		if (placeItem.length === 0)
