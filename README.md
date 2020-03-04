@@ -7,7 +7,8 @@ Planning an itinerary is a cumbersome procedure. Tourism recommender systems pop
 
 ## Demo
 
-Front-end website
+Database: Mysql + Neo4j
+Front-end website:
 ![](https://i.imgur.com/BGTDcCo.png)
 
 
