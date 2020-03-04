@@ -12,7 +12,7 @@ class InfoWindow extends Component {
 
 	render() {
 		return (
-			<Card style={{ width: '35vw', maxHeight: '50vh', overflowY: 'auto' }} onClick={this.clickDebug}>
+			<Card style={{ width: '35vw' }} onClick={this.clickDebug}>
 				<Card.Body>
 					<Card.Title>{this.props.place.title}</Card.Title>
 					{this.props.place.rating===0?null:(<Card.Subtitle className="mb-2 text-muted">

@@ -106,7 +106,7 @@ class Header extends Component {
 					</Form.Group>
 					<Form.Group as={Row} controlId="TypeLocation">
 						<Form.Label column xs="2">
-							City/Area
+							City/District
     					</Form.Label>
 						<Col>
 							<Form.Control xs="4" as="select" value={taiwan.findIndex(c => c.CityName === this.state.city)} onChange={this.changeCity}>
