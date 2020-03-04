@@ -1,0 +1,38 @@
+// Clean the DB
+MATCH (n) DETACH DELETE n;
+
+// Load csv
+LOAD CSV WITH HEADERS FROM "file:/friends_preprocess.csv" AS df
+CREATE (: usersInfo {time: df.time, name: df.name, id: df.id, city: df.city, district: df.district, hobbies: df.hobbies});
+
+// ---ALL Hobbies, us -----------
+// Build graph
+MATCH (u: usersInfo)
+UNWIND split(replace(u.hobbies, '"', ''), ', ') As user_h
+WITH DISTINCT user_h AS AllHobbies
+CREATE (au: AllUsersHobbies {name: AllHobbies});
+
+// Create relationship [GRAPH]
+MATCH (us: usersInfo), (ui: usersInfo {name: "xxx"}), (h: AllUsersHobbies)
+WITH split(replace(us.hobbies, '"', ''), ', ') AS users_h,
+     split(replace(ui.hobbies, '"', ''), ', ') AS targetUser_h,
+     us, ui, h
+WHERE SIZE([n IN users_h WHERE n IN targetUser_h | n]) > 0
+WITH  users_h, us, h
+UNWIND users_h AS users_hobb
+WITH  users_hobb, us, h
+WHERE users_hobb = h.name
+CREATE (us)-[r:hobby]->(h);
+
+
+// Query 1 [TABLE] - friends' hobby list
+MATCH (ui: usersInfo {name: "陳庭安"})-[:hobby]->(h1: AllUsersHobbies)<-[:hobby]-(us: usersInfo)
+WITH DISTINCT us
+MATCH (us)-[:hobby]->(h2: AllUsersHobbies)
+RETURN us.name AS name, collect(DISTINCT h2.name) AS hobbies;
+
+// Query 2 [TABLE] - my hobby list
+MATCH (ui: usersInfo {name: "陳庭安"})-[:hobby]->(h1: AllUsersHobbies)
+RETURN ui.name AS name, collect(DISTINCT h1.name) AS hobbies;
+
+
